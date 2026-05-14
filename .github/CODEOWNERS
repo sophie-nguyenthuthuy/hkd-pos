@@ -1,0 +1,17 @@
+# Reviewers required for these paths.
+# Replace placeholders with real GitHub handles before opening to contributors.
+
+# Tax math & rates — any change must be reviewed by tax-domain owner.
+/packages/shared/src/tax/                  @hkd-pos/tax-reviewers
+/docs/COMPLIANCE.md                        @hkd-pos/tax-reviewers
+
+# Database schema & migrations.
+/apps/api/prisma/                          @hkd-pos/db-reviewers
+
+# E-invoice provider integrations.
+/apps/api/src/providers/einvoice/          @hkd-pos/einvoice-reviewers
+
+# CI & infra.
+/.github/                                  @hkd-pos/infra-reviewers
+/docker-compose.yml                        @hkd-pos/infra-reviewers
+/apps/*/Dockerfile                         @hkd-pos/infra-reviewers

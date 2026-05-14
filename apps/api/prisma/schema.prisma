@@ -1,0 +1,334 @@
+// HKD-POS Prisma schema.
+//
+// Naming: tables snake_case, models PascalCase (Prisma convention).
+// IDs: ULID (lexicographically sortable, URL-safe) generated app-side.
+// Money: VND, stored as BigInt to safely aggregate revenue across years.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Identity & tenancy ───────────────────────────────────────────────────────
+
+model User {
+  id           String   @id
+  phone        String   @unique
+  email        String?  @unique
+  passwordHash String?
+  fullName     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships BusinessMember[]
+  sessions    Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id               String   @id
+  userId           String
+  refreshTokenHash String   @unique
+  userAgent        String?
+  ipAddress        String?
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model OtpChallenge {
+  id         String   @id
+  phone      String
+  codeHash   String
+  purpose    String   // LOGIN | REGISTER | RESET
+  attempts   Int      @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([phone, purpose])
+  @@map("otp_challenges")
+}
+
+// ─── Household business (tenant) ──────────────────────────────────────────────
+
+enum BusinessSector {
+  DISTRIBUTION_SUPPLY
+  SERVICES_CONSTRUCTION_NO_MATERIAL
+  PRODUCTION_TRANSPORT_SERVICES_WITH_GOODS
+  OTHER_BUSINESS
+}
+
+model Business {
+  id          String         @id
+  taxCode     String         @unique
+  name        String
+  address     String
+  sector      BusinessSector
+  ownerName   String
+  ownerPhone  String
+  ownerEmail  String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  members          BusinessMember[]
+  products         Product[]
+  orders           Order[]
+  invoices         Invoice[]
+  invoiceSerials   InvoiceSerial[]
+  taxDeclarations  TaxDeclaration[]
+  einvoiceConfig   EInvoiceConfig?
+
+  @@map("businesses")
+}
+
+enum BusinessRole {
+  OWNER
+  STAFF
+}
+
+model BusinessMember {
+  id         String       @id
+  businessId String
+  userId     String
+  role       BusinessRole
+  createdAt  DateTime     @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, userId])
+  @@map("business_members")
+}
+
+// ─── Catalogue ────────────────────────────────────────────────────────────────
+
+model Product {
+  id            String   @id
+  businessId    String
+  sku           String
+  name          String
+  unit          String
+  unitPriceVnd  BigInt
+  /// VAT rate as a basis-point integer (e.g. 800 = 8%). Avoids float drift.
+  vatRateBps    Int
+  archived      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  business   Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  orderLines OrderLine[]
+
+  @@unique([businessId, sku])
+  @@index([businessId, archived])
+  @@map("products")
+}
+
+// ─── Sales ────────────────────────────────────────────────────────────────────
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  CARD
+  EWALLET
+  OTHER
+}
+
+model Order {
+  id              String        @id
+  businessId      String
+  number          String
+  paymentMethod   PaymentMethod
+  customerName    String?
+  customerTaxCode String?
+  customerPhone   String?
+  totalBeforeVatVnd BigInt
+  totalVatVnd       BigInt
+  totalVnd          BigInt
+  soldAt          DateTime
+  /// Set on the device for offline-first; server reconciles duplicates by this key.
+  clientOrderRef  String?       @unique
+  createdAt       DateTime      @default(now())
+
+  business Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  lines    OrderLine[]
+  invoice  Invoice?
+
+  @@unique([businessId, number])
+  @@index([businessId, soldAt])
+  @@map("orders")
+}
+
+model OrderLine {
+  id            String @id
+  orderId       String
+  productId     String
+  name          String
+  unit          String
+  quantity      Decimal @db.Decimal(14, 3)
+  unitPriceVnd  BigInt
+  vatRateBps    Int
+  discountVnd   BigInt  @default(0)
+  netVnd        BigInt
+  vatVnd        BigInt
+  lineNumber    Int
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@map("order_lines")
+}
+
+// ─── E-invoicing ──────────────────────────────────────────────────────────────
+
+enum EInvoiceProviderKind {
+  vnpt
+  misa
+  viettel
+  easyinvoice
+  fpt
+  mock
+}
+
+model EInvoiceConfig {
+  id           String               @id
+  businessId   String               @unique
+  provider     EInvoiceProviderKind
+  baseUrl      String?
+  username     String?
+  /// AES-GCM encrypted; key from APP_SECRET. Never log this column.
+  passwordEnc  String?
+  templateCode String
+  serial       String
+  /// Path or KMS reference for the signing certificate.
+  certRef      String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@map("einvoice_configs")
+}
+
+/// Monotonic invoice number generator scoped to (business, templateCode, serial).
+/// One row per (business, template, serial); the `next` column is bumped under a
+/// row-level lock when issuing an invoice.
+model InvoiceSerial {
+  id           String   @id
+  businessId   String
+  templateCode String
+  serial       String
+  next         Int      @default(1)
+  updatedAt    DateTime @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, templateCode, serial])
+  @@map("invoice_serials")
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SIGNED
+  TRANSMITTED
+  REJECTED
+  VOIDED
+}
+
+model Invoice {
+  id                String        @id
+  businessId        String
+  orderId           String        @unique
+  templateCode      String
+  serial            String
+  number            Int
+  status            InvoiceStatus
+  gdtCode           String?
+  providerInvoiceId String?
+  lookupUrl         String?
+  /// Signed XML / JSON — the legal record. Keep forever.
+  signedPayload     String?       @db.Text
+  totalBeforeVatVnd BigInt
+  totalVatVnd       BigInt
+  totalVnd          BigInt
+  issuedAt          DateTime
+  voidedAt          DateTime?
+  voidReason        String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@unique([businessId, templateCode, serial, number])
+  @@index([businessId, issuedAt])
+  @@map("invoices")
+}
+
+// ─── Tax filings ──────────────────────────────────────────────────────────────
+
+enum DeclarationPeriod {
+  MONTH
+  QUARTER
+  YEAR
+}
+
+enum DeclarationStatus {
+  DRAFT
+  SUBMITTED
+  ACCEPTED
+  REJECTED
+}
+
+/// Pre-filled tờ khai thuế khoán (form 01/CNKD or 01/TKN-CNKD), submitted to GDT.
+model TaxDeclaration {
+  id              String              @id
+  businessId      String
+  period          DeclarationPeriod
+  periodStart     DateTime
+  periodEnd       DateTime
+  revenueVnd      BigInt
+  vatVnd          BigInt
+  pitVnd          BigInt
+  totalDueVnd     BigInt
+  status          DeclarationStatus
+  gdtReceiptCode  String?
+  submittedAt     DateTime?
+  /// Frozen JSON snapshot of the form data sent to GDT.
+  formPayload     Json
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, period, periodStart])
+  @@map("tax_declarations")
+}
+
+// ─── Audit ────────────────────────────────────────────────────────────────────
+
+model AuditEvent {
+  id         String   @id
+  businessId String?
+  userId     String?
+  action     String
+  /// JSON snapshot of relevant before/after state. Never include secrets.
+  payload    Json
+  createdAt  DateTime @default(now())
+
+  @@index([businessId, createdAt])
+  @@index([userId, createdAt])
+  @@map("audit_events")
+}
