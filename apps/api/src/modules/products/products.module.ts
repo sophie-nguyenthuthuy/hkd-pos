@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { BusinessesModule } from '../businesses/businesses.module.js';
+
 import { ProductsController } from './products.controller.js';
 import { ProductsService } from './products.service.js';
 

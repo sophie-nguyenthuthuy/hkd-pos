@@ -1,10 +1,13 @@
-import { Inject, Injectable } from '@nestjs/common';
 import { DomainError, ErrorCode, type EInvoicePayload } from '@hkd-pos/shared';
+import { Inject, Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { ulid } from 'ulid';
 
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { EINVOICE_PROVIDER, type EInvoiceProvider } from '../../providers/einvoice/provider.interface.js';
+import type { PrismaService } from '../../prisma/prisma.service.js';
+import {
+  EINVOICE_PROVIDER,
+  type EInvoiceProvider,
+} from '../../providers/einvoice/provider.interface.js';
 
 @Injectable()
 export class InvoicesService {
@@ -37,7 +40,10 @@ export class InvoicesService {
 
     const config = await this.prisma.eInvoiceConfig.findUnique({ where: { businessId } });
     if (!config) {
-      throw new DomainError(ErrorCode.EINVOICE_PROVIDER_UNAVAILABLE, 'Chưa cấu hình HĐĐT cho hộ kinh doanh.');
+      throw new DomainError(
+        ErrorCode.EINVOICE_PROVIDER_UNAVAILABLE,
+        'Chưa cấu hình HĐĐT cho hộ kinh doanh.',
+      );
     }
 
     // Step 1: reserve invoice number transactionally.

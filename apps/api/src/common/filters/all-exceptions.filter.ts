@@ -1,5 +1,11 @@
-import { type ArgumentsHost, Catch, type ExceptionFilter, HttpException, Logger } from '@nestjs/common';
 import { ErrorCode, DomainError } from '@hkd-pos/shared';
+import {
+  type ArgumentsHost,
+  Catch,
+  type ExceptionFilter,
+  HttpException,
+  Logger,
+} from '@nestjs/common';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ZodError } from 'zod';
 
@@ -30,22 +36,42 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
   private translate(exception: unknown): { status: number; body: ErrorBody } {
     if (exception instanceof DomainError) {
-      return { status: domainStatus(exception.code), body: { code: exception.code, message: exception.message, details: exception.details } };
+      return {
+        status: domainStatus(exception.code),
+        body: { code: exception.code, message: exception.message, details: exception.details },
+      };
     }
 
     if (exception instanceof ZodError) {
       return {
         status: 400,
-        body: { code: ErrorCode.VALIDATION_FAILED, message: 'Validation failed', details: exception.flatten() },
+        body: {
+          code: ErrorCode.VALIDATION_FAILED,
+          message: 'Validation failed',
+          details: exception.flatten(),
+        },
       };
     }
 
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       const response = exception.getResponse();
-      const message = typeof response === 'string' ? response : (response as { message?: string }).message ?? exception.message;
-      const code = status === 401 ? 'UNAUTHORIZED' : status === 403 ? 'FORBIDDEN' : status === 404 ? 'NOT_FOUND' : 'HTTP_ERROR';
-      return { status, body: { code, message, details: typeof response === 'object' ? response : undefined } };
+      const message =
+        typeof response === 'string'
+          ? response
+          : ((response as { message?: string }).message ?? exception.message);
+      const code =
+        status === 401
+          ? 'UNAUTHORIZED'
+          : status === 403
+            ? 'FORBIDDEN'
+            : status === 404
+              ? 'NOT_FOUND'
+              : 'HTTP_ERROR';
+      return {
+        status,
+        body: { code, message, details: typeof response === 'object' ? response : undefined },
+      };
     }
 
     return {

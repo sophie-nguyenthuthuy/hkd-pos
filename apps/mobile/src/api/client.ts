@@ -1,7 +1,7 @@
 import type { ApiError } from '@hkd-pos/shared';
 import Constants from 'expo-constants';
 
-import { useAuthStore } from '../store/auth.js';
+import { useAuthStore } from '../store/auth';
 
 const baseUrl: string =
   (Constants.expoConfig?.extra?.apiUrl as string | undefined) ??
@@ -9,7 +9,10 @@ const baseUrl: string =
   'http://localhost:3000';
 
 export class ApiClientError extends Error {
-  constructor(public readonly status: number, public readonly body: ApiError) {
+  constructor(
+    public readonly status: number,
+    public readonly body: ApiError,
+  ) {
     super(body.message);
     this.name = 'ApiClientError';
   }
@@ -41,7 +44,10 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
   const data = text ? (JSON.parse(text) as unknown) : null;
 
   if (!res.ok) {
-    throw new ApiClientError(res.status, (data as ApiError) ?? { code: 'INTERNAL_ERROR', message: res.statusText });
+    throw new ApiClientError(
+      res.status,
+      (data as ApiError) ?? { code: 'INTERNAL_ERROR', message: res.statusText },
+    );
   }
 
   return data as T;

@@ -4,9 +4,9 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { RootNavigator } from './src/navigation/RootNavigator.js';
-import { useAuthStore } from './src/store/auth.js';
-import './src/i18n/index.js';
+import { RootNavigator } from './src/navigation/RootNavigator';
+import { useAuthStore } from './src/store/auth';
+import './src/i18n';
 
 const queryClient = new QueryClient({
   defaultOptions: {

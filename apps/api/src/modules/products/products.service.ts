@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
 import { DomainError, ErrorCode } from '@hkd-pos/shared';
+import { Injectable } from '@nestjs/common';
 import { ulid } from 'ulid';
 import { z } from 'zod';
 
-import { PrismaService } from '../../prisma/prisma.service.js';
+import type { PrismaService } from '../../prisma/prisma.service.js';
 
 export const UpsertProductDto = z.object({
   sku: z.string().min(1).max(64),

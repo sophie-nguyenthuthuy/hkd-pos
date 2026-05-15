@@ -3,7 +3,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
 import { ZodValidationPipe } from '../../common/decorators/zod-body.decorator.js';
-import { AuthService } from './auth.service.js';
+
+import type { AuthService } from './auth.service.js';
 import { RefreshDto, RequestOtpDto, VerifyOtpDto } from './dto.js';
 
 @ApiTags('auth')

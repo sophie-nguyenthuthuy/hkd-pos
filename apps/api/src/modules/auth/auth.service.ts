@@ -1,13 +1,15 @@
 import { createHash } from 'node:crypto';
 
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import { DomainError, ErrorCode } from '@hkd-pos/shared';
+import { Injectable } from '@nestjs/common';
+import type { ConfigService } from '@nestjs/config';
+import type { JwtService } from '@nestjs/jwt';
 import { ulid } from 'ulid';
 
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { OtpService, generateRefreshToken } from './otp.service.js';
+import type { PrismaService } from '../../prisma/prisma.service.js';
+
+import type { OtpService } from './otp.service.js';
+import { generateRefreshToken } from './otp.service.js';
 
 export interface AuthTokens {
   accessToken: string;

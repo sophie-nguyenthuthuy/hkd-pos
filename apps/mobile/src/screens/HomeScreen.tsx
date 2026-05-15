@@ -4,8 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { api } from '../api/client.js';
-import { colors, radius, spacing, type } from '../theme/index.js';
+import { api } from '../api/client';
+import { colors, radius, spacing, type } from '../theme/index';
 
 interface Forecast {
   ytdRevenueVnd: number;
@@ -82,7 +82,12 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   cardLabel: { color: colors.textMuted, fontSize: type.caption },
-  cardValue: { color: colors.text, fontSize: type.display, fontWeight: '700', marginTop: spacing.xs },
+  cardValue: {
+    color: colors.text,
+    fontSize: type.display,
+    fontWeight: '700',
+    marginTop: spacing.xs,
+  },
   cardSubtle: { color: colors.textMuted, fontSize: type.caption, marginTop: spacing.xs },
   warnCard: { backgroundColor: colors.warn },
   warnText: { color: '#0F172A', fontWeight: '700' },

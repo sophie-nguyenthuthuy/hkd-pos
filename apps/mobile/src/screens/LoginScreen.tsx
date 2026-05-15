@@ -1,10 +1,18 @@
 import { PhoneSchema } from '@hkd-pos/shared';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
-import { useAuthStore } from '../store/auth.js';
-import { colors, radius, spacing, type } from '../theme/index.js';
+import { useAuthStore } from '../store/auth';
+import { colors, radius, spacing, type } from '../theme/index';
 
 type Stage = 'phone' | 'otp';
 
@@ -90,7 +98,15 @@ export function LoginScreen() {
   );
 }
 
-function PrimaryButton({ label, onPress, busy }: { label: string; onPress: () => void; busy: boolean }) {
+function PrimaryButton({
+  label,
+  onPress,
+  busy,
+}: {
+  label: string;
+  onPress: () => void;
+  busy: boolean;
+}) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -102,7 +118,11 @@ function PrimaryButton({ label, onPress, busy }: { label: string; onPress: () =>
         busy && { opacity: 0.6 },
       ]}
     >
-      {busy ? <ActivityIndicator color={colors.primaryText} /> : <Text style={styles.buttonText}>{label}</Text>}
+      {busy ? (
+        <ActivityIndicator color={colors.primaryText} />
+      ) : (
+        <Text style={styles.buttonText}>{label}</Text>
+      )}
     </Pressable>
   );
 }
@@ -115,7 +135,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: { color: colors.text, fontSize: type.display, fontWeight: '700' },
-  subtitle: { color: colors.textMuted, fontSize: type.body, marginTop: spacing.sm, marginBottom: spacing.xl },
+  subtitle: {
+    color: colors.textMuted,
+    fontSize: type.body,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xl,
+  },
   label: { color: colors.text, fontSize: type.caption, marginBottom: spacing.xs },
   input: {
     backgroundColor: colors.surface,

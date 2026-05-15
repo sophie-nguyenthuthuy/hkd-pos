@@ -3,8 +3,9 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { RequestUser } from '../../common/decorators/zod-body.decorator.js';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
-import { BusinessesService } from '../businesses/businesses.service.js';
-import { TaxService } from './tax.service.js';
+import type { BusinessesService } from '../businesses/businesses.service.js';
+
+import type { TaxService } from './tax.service.js';
 
 @ApiTags('tax')
 @ApiBearerAuth()

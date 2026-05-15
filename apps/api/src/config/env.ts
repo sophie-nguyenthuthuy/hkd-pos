@@ -18,7 +18,9 @@ const EnvSchema = z.object({
   ESMS_SECRET_KEY: z.string().optional(),
   ESMS_BRANDNAME: z.string().optional(),
 
-  EINVOICE_PROVIDER: z.enum(['vnpt', 'misa', 'viettel', 'easyinvoice', 'fpt', 'mock']).default('mock'),
+  EINVOICE_PROVIDER: z
+    .enum(['vnpt', 'misa', 'viettel', 'easyinvoice', 'fpt', 'mock'])
+    .default('mock'),
   EINVOICE_BASE_URL: z.string().url().optional(),
   EINVOICE_USERNAME: z.string().optional(),
   EINVOICE_PASSWORD: z.string().optional(),
@@ -42,7 +44,9 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
   if (cached) return cached;
   const result = EnvSchema.safeParse(source);
   if (!result.success) {
-    const issues = result.error.issues.map((i) => `  • ${i.path.join('.')}: ${i.message}`).join('\n');
+    const issues = result.error.issues
+      .map((i) => `  • ${i.path.join('.')}: ${i.message}`)
+      .join('\n');
     throw new Error(`Invalid environment configuration:\n${issues}`);
   }
   cached = result.data;

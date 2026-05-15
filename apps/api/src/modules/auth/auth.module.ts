@@ -14,7 +14,7 @@ import { OtpService } from './otp.service.js';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (cfg: ConfigService) => ({
-        secret: cfg.get<string>('JWT_ACCESS_SECRET'),
+        secret: cfg.getOrThrow<string>('JWT_ACCESS_SECRET'),
         signOptions: { expiresIn: cfg.get<string>('JWT_ACCESS_TTL') ?? '15m' },
       }),
     }),

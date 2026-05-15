@@ -5,7 +5,6 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 
 import { loadEnv } from './config/env.js';
-import { PrismaModule } from './prisma/prisma.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { BusinessesModule } from './modules/businesses/businesses.module.js';
 import { HealthModule } from './modules/health/health.module.js';
@@ -13,6 +12,7 @@ import { InvoicesModule } from './modules/invoices/invoices.module.js';
 import { OrdersModule } from './modules/orders/orders.module.js';
 import { ProductsModule } from './modules/products/products.module.js';
 import { TaxModule } from './modules/tax/tax.module.js';
+import { PrismaModule } from './prisma/prisma.module.js';
 import { EInvoiceProviderModule } from './providers/einvoice/einvoice.module.js';
 
 @Module({

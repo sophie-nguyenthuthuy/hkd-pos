@@ -10,18 +10,14 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'plugin:import/recommended',
-    'plugin:import/typescript',
     'prettier',
   ],
-  settings: {
-    'import/resolver': {
-      typescript: { alwaysTryTypes: true, project: ['apps/*/tsconfig.json', 'packages/*/tsconfig.json'] },
-    },
-  },
   rules: {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
+    // TypeScript itself handles module resolution; eslint-plugin-import only
+    // duplicates that check at the cost of a heavy resolver setup. We keep
+    // `import/order` for style but skip the resolver-dependent rules.
     'import/order': [
       'error',
       {

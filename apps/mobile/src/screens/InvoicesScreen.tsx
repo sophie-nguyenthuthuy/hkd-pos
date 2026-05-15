@@ -3,8 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
-import { api } from '../api/client.js';
-import { colors, radius, spacing, type } from '../theme/index.js';
+import { api } from '../api/client';
+import { colors, radius, spacing, type } from '../theme/index';
 
 interface Invoice {
   id: string;
@@ -23,7 +23,10 @@ interface Business {
 
 export function InvoicesScreen() {
   const { t } = useTranslation();
-  const businesses = useQuery({ queryKey: ['businesses'], queryFn: () => api<Business[]>('/businesses') });
+  const businesses = useQuery({
+    queryKey: ['businesses'],
+    queryFn: () => api<Business[]>('/businesses'),
+  });
   const businessId = businesses.data?.[0]?.id;
   const invoices = useQuery({
     queryKey: ['invoices', businessId],
@@ -44,7 +47,8 @@ export function InvoicesScreen() {
               {item.serial}-{String(item.number).padStart(6, '0')}
             </Text>
             <Text style={styles.meta}>
-              {new Date(item.issuedAt).toLocaleString('vi-VN')} • {t(`invoice.status.${item.status}`)}
+              {new Date(item.issuedAt).toLocaleString('vi-VN')} •{' '}
+              {t(`invoice.status.${item.status}`)}
             </Text>
             {item.gdtCode ? <Text style={styles.gdt}>{item.gdtCode}</Text> : null}
           </View>

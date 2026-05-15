@@ -3,8 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
-import { api } from '../api/client.js';
-import { colors, radius, spacing, type } from '../theme/index.js';
+import { api } from '../api/client';
+import { colors, radius, spacing, type } from '../theme/index';
 
 interface Product {
   id: string;
@@ -21,7 +21,10 @@ interface Business {
 
 export function ProductsScreen() {
   const { t } = useTranslation();
-  const businesses = useQuery({ queryKey: ['businesses'], queryFn: () => api<Business[]>('/businesses') });
+  const businesses = useQuery({
+    queryKey: ['businesses'],
+    queryFn: () => api<Business[]>('/businesses'),
+  });
   const businessId = businesses.data?.[0]?.id;
   const products = useQuery({
     queryKey: ['products', businessId],

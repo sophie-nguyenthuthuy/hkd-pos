@@ -2,8 +2,8 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { MockEInvoiceProvider } from './mock.provider.js';
-import { VnptEInvoiceProvider } from './vnpt.provider.js';
 import { EINVOICE_PROVIDER, type EInvoiceProvider } from './provider.interface.js';
+import { VnptEInvoiceProvider } from './vnpt.provider.js';
 
 @Global()
 @Module({

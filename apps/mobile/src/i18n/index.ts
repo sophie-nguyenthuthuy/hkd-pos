@@ -2,8 +2,8 @@ import { getLocales } from 'expo-localization';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import en from './en.js';
-import vi from './vi.js';
+import en from './en';
+import vi from './vi';
 
 const fallback = 'vi';
 const detected = getLocales()[0]?.languageCode ?? fallback;

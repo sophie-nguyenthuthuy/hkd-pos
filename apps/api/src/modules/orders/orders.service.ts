@@ -1,10 +1,16 @@
+import {
+  DomainError,
+  ErrorCode,
+  PaymentMethodSchema,
+  TaxCodeSchema,
+  computeInvoiceTotals,
+} from '@hkd-pos/shared';
 import { Injectable } from '@nestjs/common';
-import { DomainError, ErrorCode, PaymentMethodSchema, TaxCodeSchema, computeInvoiceTotals } from '@hkd-pos/shared';
 import { Prisma } from '@prisma/client';
 import { ulid } from 'ulid';
 import { z } from 'zod';
 
-import { PrismaService } from '../../prisma/prisma.service.js';
+import type { PrismaService } from '../../prisma/prisma.service.js';
 
 export const CreateOrderDto = z.object({
   /** Device-generated id for idempotency under flaky connections. */
@@ -55,7 +61,11 @@ export class OrdersService {
 
     const enriched = dto.lines.map((l) => {
       const p = byId.get(l.productId);
-      if (!p) throw new DomainError(ErrorCode.PRODUCT_NOT_FOUND, `Sản phẩm ${l.productId} không tồn tại.`);
+      if (!p)
+        throw new DomainError(
+          ErrorCode.PRODUCT_NOT_FOUND,
+          `Sản phẩm ${l.productId} không tồn tại.`,
+        );
       return {
         productId: p.id,
         name: p.name,

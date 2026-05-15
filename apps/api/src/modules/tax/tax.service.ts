@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
 import { DomainError, ErrorCode, annualizeRevenue, computePresumptiveTax } from '@hkd-pos/shared';
+import { Injectable } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 import { ulid } from 'ulid';
 
-import { PrismaService } from '../../prisma/prisma.service.js';
+import type { PrismaService } from '../../prisma/prisma.service.js';
 
 @Injectable()
 export class TaxService {
@@ -50,12 +51,21 @@ export class TaxService {
     const revenueVnd = Number(agg._sum.totalVnd ?? 0n);
 
     // Annualize for exemption-threshold check, then prorate back to period days.
-    const periodDays = Math.max(1, Math.ceil((periodEnd.getTime() - periodStart.getTime()) / 86_400_000));
+    const periodDays = Math.max(
+      1,
+      Math.ceil((periodEnd.getTime() - periodStart.getTime()) / 86_400_000),
+    );
     const annualRevenue = annualizeRevenue(revenueVnd, periodDays);
     const annualTax = computePresumptiveTax(business.sector, annualRevenue);
 
     const vatVnd = Math.round((annualTax.vatVnd / 365) * periodDays);
     const pitVnd = Math.round((annualTax.pitVnd / 365) * periodDays);
+
+    const formPayload: Prisma.InputJsonValue = {
+      sector: business.sector,
+      rates: { vatRate: annualTax.rates.vatRate, pitRate: annualTax.rates.pitRate },
+      exempt: annualTax.exempt,
+    };
 
     return this.prisma.taxDeclaration.upsert({
       where: { businessId_period_periodStart: { businessId, period, periodStart } },
@@ -66,11 +76,7 @@ export class TaxService {
         pitVnd: BigInt(pitVnd),
         totalDueVnd: BigInt(vatVnd + pitVnd),
         status: 'DRAFT',
-        formPayload: {
-          sector: business.sector,
-          rates: annualTax.rates,
-          exempt: annualTax.exempt,
-        },
+        formPayload,
       },
       create: {
         id: ulid(),
@@ -83,11 +89,7 @@ export class TaxService {
         pitVnd: BigInt(pitVnd),
         totalDueVnd: BigInt(vatVnd + pitVnd),
         status: 'DRAFT',
-        formPayload: {
-          sector: business.sector,
-          rates: annualTax.rates,
-          exempt: annualTax.exempt,
-        },
+        formPayload,
       },
     });
   }

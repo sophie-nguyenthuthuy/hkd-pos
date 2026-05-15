@@ -8,11 +8,11 @@ services:
       POSTGRES_PASSWORD: hkd
       POSTGRES_DB: hkd_pos
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - hkd-pg-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U hkd -d hkd_pos"]
+      test: ['CMD-SHELL', 'pg_isready -U hkd -d hkd_pos']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -22,11 +22,11 @@ services:
     container_name: hkd-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - hkd-redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 3s
       retries: 10

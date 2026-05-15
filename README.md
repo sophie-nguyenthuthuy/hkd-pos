@@ -20,12 +20,12 @@ This repo is the foundation for a single app that gives ~5M household businesses
 
 ## Regulatory context
 
-| Reference | What it says |
-| --- | --- |
+| Reference                                    | What it says                                                           |
+| -------------------------------------------- | ---------------------------------------------------------------------- |
 | Nghị định 70/2025/NĐ-CP (amends NĐ 123/2020) | Mandates HĐĐT-MTT for HKD with revenue ≥ 1 tỷ VND/year from 01/06/2025 |
-| Thông tư 78/2021/TT-BTC | Technical schema for e-invoice data transmitted to GDT |
-| Thông tư 40/2021/TT-BTC | Presumptive tax computation for household and individual businesses |
-| Luật Quản lý thuế 38/2019/QH14 | Tax administration framework |
+| Thông tư 78/2021/TT-BTC                      | Technical schema for e-invoice data transmitted to GDT                 |
+| Thông tư 40/2021/TT-BTC                      | Presumptive tax computation for household and individual businesses    |
+| Luật Quản lý thuế 38/2019/QH14               | Tax administration framework                                           |
 
 All tax/compliance logic lives in `packages/shared/src/tax/` and is unit-tested against
 worked examples from the circulars. Do not duplicate rates elsewhere.

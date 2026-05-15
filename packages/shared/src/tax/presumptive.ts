@@ -2,11 +2,7 @@ import type { BusinessSector } from '../domain/schemas.js';
 import type { VND } from '../money.js';
 import { toVND } from '../money.js';
 
-import {
-  HKD_TAX_EXEMPTION_THRESHOLD_VND,
-  PRESUMPTIVE_RATES,
-  type SectorRates,
-} from './rates.js';
+import { HKD_TAX_EXEMPTION_THRESHOLD_VND, PRESUMPTIVE_RATES, type SectorRates } from './rates.js';
 
 export interface PresumptiveTaxResult {
   sector: BusinessSector;

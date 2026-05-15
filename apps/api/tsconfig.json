@@ -4,14 +4,14 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "dist",
-    "rootDir": "src",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "ES2022",
-    "baseUrl": "src",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["*"]
-    }
+      "@/*": ["src/*"]
+    },
+    "noEmit": true
   },
   "include": ["src/**/*", "prisma/seed.ts", "test/**/*"],
   "exclude": ["dist", "node_modules"]

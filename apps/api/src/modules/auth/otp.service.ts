@@ -1,12 +1,12 @@
 import { randomBytes, randomInt } from 'node:crypto';
 
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { DomainError, ErrorCode } from '@hkd-pos/shared';
+import { Injectable, Logger } from '@nestjs/common';
+import type { ConfigService } from '@nestjs/config';
 import argon2 from 'argon2';
 import { ulid } from 'ulid';
 
-import { PrismaService } from '../../prisma/prisma.service.js';
+import type { PrismaService } from '../../prisma/prisma.service.js';
 
 const OTP_TTL_MS = 5 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
@@ -34,7 +34,10 @@ export class OtpService {
       },
     });
     if (recent >= MAX_PER_HOUR) {
-      throw new DomainError(ErrorCode.AUTH_RATE_LIMITED, 'Bạn đã yêu cầu OTP quá nhiều lần. Vui lòng thử lại sau 1 giờ.');
+      throw new DomainError(
+        ErrorCode.AUTH_RATE_LIMITED,
+        'Bạn đã yêu cầu OTP quá nhiều lần. Vui lòng thử lại sau 1 giờ.',
+      );
     }
 
     const code = randomInt(0, 1_000_000).toString().padStart(6, '0');
@@ -66,7 +69,10 @@ export class OtpService {
       throw new DomainError(ErrorCode.AUTH_OTP_EXPIRED, 'Mã OTP đã hết hạn.');
     }
     if (challenge.attempts >= MAX_ATTEMPTS) {
-      throw new DomainError(ErrorCode.AUTH_RATE_LIMITED, 'Sai mã quá nhiều lần. Hãy yêu cầu mã mới.');
+      throw new DomainError(
+        ErrorCode.AUTH_RATE_LIMITED,
+        'Sai mã quá nhiều lần. Hãy yêu cầu mã mới.',
+      );
     }
 
     const ok = await argon2.verify(challenge.codeHash, code);

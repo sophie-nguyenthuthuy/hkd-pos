@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { ulid } from 'ulid';
 
-import { api } from '../api/client.js';
-import { colors, radius, spacing, type } from '../theme/index.js';
+import { api } from '../api/client';
+import { colors, radius, spacing, type } from '../theme/index';
 
 interface Business {
   id: string;
@@ -105,7 +105,9 @@ export function NewSaleScreen() {
           })),
         },
       });
-      await api<unknown>(`/businesses/${businessId}/invoices/issue/${order.id}`, { method: 'POST' });
+      await api<unknown>(`/businesses/${businessId}/invoices/issue/${order.id}`, {
+        method: 'POST',
+      });
       return order;
     },
     onSuccess: () => {
@@ -177,7 +179,12 @@ const styles = StyleSheet.create({
   },
   productName: { color: colors.text, fontSize: type.title, fontWeight: '600' },
   productMeta: { color: colors.textMuted, fontSize: type.caption, marginTop: 2 },
-  addPlus: { color: colors.primary, fontSize: 32, fontWeight: '700', paddingHorizontal: spacing.md },
+  addPlus: {
+    color: colors.primary,
+    fontSize: 32,
+    fontWeight: '700',
+    paddingHorizontal: spacing.md,
+  },
   summary: {
     padding: spacing.lg,
     backgroundColor: colors.surface,

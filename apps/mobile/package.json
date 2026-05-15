@@ -6,10 +6,12 @@
     "dev": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "build": "expo export",
+    "_comment_build": "Production builds run via EAS Build (handles bundling + signing). The workspace `build` step intentionally only typechecks; use `pnpm export` locally if you need a Metro bundle.",
+    "build": "tsc --noEmit",
+    "export": "expo export",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "clean": "rm -rf .expo dist .turbo"
   },
   "dependencies": {

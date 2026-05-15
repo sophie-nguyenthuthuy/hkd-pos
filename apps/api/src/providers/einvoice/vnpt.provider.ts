@@ -1,5 +1,5 @@
-import type { ConfigService } from '@nestjs/config';
 import { DomainError, ErrorCode, type EInvoiceIssued, type EInvoicePayload } from '@hkd-pos/shared';
+import type { ConfigService } from '@nestjs/config';
 
 import type { EInvoiceProvider } from './provider.interface.js';
 

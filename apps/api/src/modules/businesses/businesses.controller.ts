@@ -3,7 +3,9 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { RequestUser, ZodValidationPipe } from '../../common/decorators/zod-body.decorator.js';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
-import { BusinessesService, CreateBusinessDto } from './businesses.service.js';
+
+import type { BusinessesService } from './businesses.service.js';
+import { CreateBusinessDto } from './businesses.service.js';
 
 @ApiTags('businesses')
 @ApiBearerAuth()

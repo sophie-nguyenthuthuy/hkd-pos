@@ -1,7 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 import { create } from 'zustand';
 
-import { api } from '../api/client.js';
+import { api } from '../api/client';
 
 interface AuthTokens {
   accessToken: string;
@@ -20,7 +20,12 @@ interface AuthState {
 
   hydrate(): Promise<void>;
   requestOtp(phone: string, purpose: 'LOGIN' | 'REGISTER'): Promise<void>;
-  verifyOtp(args: { phone: string; otp: string; purpose: 'LOGIN' | 'REGISTER'; fullName?: string }): Promise<void>;
+  verifyOtp(args: {
+    phone: string;
+    otp: string;
+    purpose: 'LOGIN' | 'REGISTER';
+    fullName?: string;
+  }): Promise<void>;
   logout(): Promise<void>;
   getAccessToken(): Promise<string | null>;
 }
@@ -87,7 +92,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const refreshToken = get().refreshToken;
     if (refreshToken) {
       try {
-        await api<void>('/auth/logout', { method: 'POST', body: { refreshToken }, anonymous: true });
+        await api<void>('/auth/logout', {
+          method: 'POST',
+          body: { refreshToken },
+          anonymous: true,
+        });
       } catch {
         // ignore — local state is the source of truth for "logged out".
       }

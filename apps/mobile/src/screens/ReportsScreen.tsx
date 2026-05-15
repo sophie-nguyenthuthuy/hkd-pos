@@ -3,8 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { api } from '../api/client.js';
-import { colors, radius, spacing, type } from '../theme/index.js';
+import { api } from '../api/client';
+import { colors, radius, spacing, type } from '../theme/index';
 
 interface Forecast {
   ytdRevenueVnd: number;
@@ -21,7 +21,10 @@ interface Business {
 
 export function ReportsScreen() {
   const { t } = useTranslation();
-  const businesses = useQuery({ queryKey: ['businesses'], queryFn: () => api<Business[]>('/businesses') });
+  const businesses = useQuery({
+    queryKey: ['businesses'],
+    queryFn: () => api<Business[]>('/businesses'),
+  });
   const businessId = businesses.data?.[0]?.id;
   const forecast = useQuery({
     queryKey: ['forecast', businessId],

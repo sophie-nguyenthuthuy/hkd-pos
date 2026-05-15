@@ -9,10 +9,7 @@ Treat this as the gate between "the scaffold runs" and "real money flows through
 - [ ] Each onboarded business has its own provider account (or a sub-account
       under a reseller agreement) and a registered template + serial in
       `invoice_serials`.
-- [ ] Each business's digital certificate is loaded onto:
-      - a USB token attached to a desktop relay, **or**
-      - a soft-cert (PFX) encrypted with the per-business secret + KMS, **or**
-      - an HSM partition keyed by tax code.
+- [ ] Each business's digital certificate is loaded onto: - a USB token attached to a desktop relay, **or** - a soft-cert (PFX) encrypted with the per-business secret + KMS, **or** - an HSM partition keyed by tax code.
 - [ ] Tax-code-scoped configuration of the e-invoice provider is verified
       against the provider's UAT before being promoted to live.
 - [ ] Filed Thông báo phát hành (TB04/AC) with GDT for the template + serial,
@@ -48,11 +45,7 @@ Treat this as the gate between "the scaffold runs" and "real money flows through
 - [ ] OpenTelemetry traces exported (collector at `OTEL_EXPORTER_OTLP_ENDPOINT`).
 - [ ] Structured logs (`pino`) shipped to a log warehouse; PII redaction
       configured (see `app.module.ts` → `LoggerModule.pinoHttp.redact`).
-- [ ] Alerts:
-      - `5xx rate > 1% over 5m`
-      - `einvoice_provider_unavailable > 0 over 1m`
-      - `gdt_transmission_failed_total > 5 over 5m`
-      - `postgres connection pool > 80% for 5m`
+- [ ] Alerts: - `5xx rate > 1% over 5m` - `einvoice_provider_unavailable > 0 over 1m` - `gdt_transmission_failed_total > 5 over 5m` - `postgres connection pool > 80% for 5m`
 
 ## Mobile release
 
